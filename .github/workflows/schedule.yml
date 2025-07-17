@@ -1,0 +1,44 @@
+name: Sheets to Caspio Transfer
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 6 * * *'
+      timezone: 'Asia/Bangkok'
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Set up Google credentials
+        run: |
+          mkdir -p src
+          printf '%s' "${GOOGLE_CREDENTIALS}" > src/google-credentials.json
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Check credentials content (debug)
+        run: cat src/google-credentials.json
+
+      - name: Run transfer script
+        env:
+          CASPIO_ACCOUNT_ID: ${{ secrets.CASPIO_ACCOUNT_ID }}
+          CASPIO_CLIENT_ID: ${{ secrets.CASPIO_CLIENT_ID }}
+          CASPIO_CLIENT_SECRET: ${{ secrets.CASPIO_CLIENT_SECRET }}
+          CASPIO_TABLE_NAME: ${{ vars.CASPIO_TABLE_NAME }}
+          SHEET_URL: ${{ secrets.SHEET_URL }}
+          WORKSHEET_NAME: ${{ vars.WORKSHEET_NAME }}
+        run: |
+          python -m src.sheet_caspio

@@ -3,8 +3,7 @@ name: Sheets to Caspio Transfer
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 6 * * *'
-      timezone: 'Asia/Bangkok'
+    - cron: '30 23 * * *'
 
 jobs:
   transfer:
